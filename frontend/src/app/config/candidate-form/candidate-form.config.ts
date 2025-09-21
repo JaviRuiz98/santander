@@ -11,7 +11,7 @@ export const FORM_CANDIDATE_INPUTS:  FormSchema[][] = [
     }],
     [{
         type: ['text'],
-        headers: ['Name'],
+        headers: ['Nombre'],
         fields: ['name'],
         options: [],
         parameters: [],
@@ -19,7 +19,7 @@ export const FORM_CANDIDATE_INPUTS:  FormSchema[][] = [
     }],
     [{
         type: ['text'],
-        headers: ['Surname'],
+        headers: ['Apellidos'],
         fields: ['surname'],
         options: [],
         parameters: [],

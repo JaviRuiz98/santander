@@ -2,16 +2,18 @@
   <div *ngFor="let row of form">
     <div [ngStyle]="getGridStyle(row)">
       <ng-container *ngFor="let item of row">
-        <div *ngFor="let type of item.type; let i = index" [ngSwitch]="type">
-          <div *ngSwitchCase="'header'"
-               [ngStyle]="{ 'grid-column': 'span ' + getItemSpan(item) }">
+        <div *ngFor="let type of item.type; let i = index" [ngSwitch]="type" class="margin">
+          <div *ngSwitchCase="'header'">
             <h3 class="section-title">{{ item.headers[i] }}</h3>
           </div>
-          <div *ngSwitchCase="'text'"
-               [ngStyle]="{ 'grid-column': 'span ' + getItemSpan(item) }">
-            <label [for]="item.fields[i]">{{ item.headers[i] }}</label>
-            <input [id]="item.fields[i]" type="text"
-                   formControlName="{{ item.fields[i] }}" />
+          <div *ngSwitchCase="'text'" >
+            <label [for]="item.fields[i]" class="field-label">
+              {{ item.headers[i] }}
+            </label>
+            <span style="width: 99%">
+              <input class="input-text" 
+                [name]="item.fields[i]" type="text" pInputText [formControlName]="item.fields[i]"/>
+            </span>
           </div>
           <div *ngSwitchCase="'file'"
                [ngStyle]="{ 'grid-column': 'span ' + getItemSpan(item) }">
@@ -19,8 +21,7 @@
             <input [id]="item.fields[i]" type="file"
                    (change)="onFileChange($event)" accept=".xlsx,.xls" />
           </div>
-          <div *ngSwitchCase="'button'"
-               [ngStyle]="{ 'grid-column': 'span ' + getItemSpan(item) }">
+          <div *ngSwitchCase="'button'" class="button">
             <button type="submit" [disabled]="registerForm.invalid || !file">Guardar</button>
           </div>
         </div>
