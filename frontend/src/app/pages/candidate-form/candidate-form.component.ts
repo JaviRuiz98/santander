@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormComponent } from '../../component/form/form.component';
 import { FormSchema } from '../../interface/component/form/form.interface';
 import { FORM_CANDIDATE_INPUTS } from '../../config/candidate-form/candidate-form.config';
+import { Candidate } from '../../interface/pages/candidate/candidate.interface';
 
 @Component({
   selector: 'app-candidate-form',
@@ -18,7 +19,7 @@ export class CandidatePageComponent implements OnInit{
   constructor(){}
   ngOnInit(): void {}
 
-  onSubmit(event: any){
+  onSubmit(event: FormData){
     console.log(event)
   }
 }
