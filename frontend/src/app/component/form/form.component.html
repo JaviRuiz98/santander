@@ -22,7 +22,11 @@
                    (change)="onFileChange($event)" accept=".xlsx,.xls" />
           </div>
           <div *ngSwitchCase="'button'" class="button">
-            <button type="submit" [disabled]="registerForm.invalid || !file">Guardar</button>
+            <button type="submit"
+                    class="btn-primary"
+                    [disabled]="registerForm.invalid || !file">
+              {{ item.headers[i] }}
+            </button>
           </div>
         </div>
       </ng-container>

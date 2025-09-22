@@ -35,7 +35,7 @@ export const FORM_CANDIDATE_INPUTS:  FormSchema[][] = [
     }],
     [{
       type: ['button'],
-      headers: [''],
+      headers: ['Guardar'],
       fields: ['button'],
       options: [],
       parameters: [],
