@@ -10,6 +10,7 @@ import { FormSchema } from '../../interface/component/form/form.interface';
   templateUrl: './form.component.html',
   styleUrls: ['./form.component.css']
 })
+
 export class FormComponent implements OnChanges {
   @Input() form: FormSchema[][] = [];
   @Output() onSubmitEmitter = new EventEmitter<FormData>();
@@ -32,7 +33,7 @@ export class FormComponent implements OnChanges {
       for (const item of row) {
         item.fields.forEach((fieldName, i) => {
           const type = item.type?.[i] ?? item.type?.[0];
-          if (!fieldName || type === 'cabecera' || type === 'file') return;
+          if (!fieldName || type === 'header' || type === 'file') return;
 
           const validators: ValidatorFn[] = [];
           if (item.validators?.[i]) validators.push(Validators.required);
@@ -70,13 +71,12 @@ export class FormComponent implements OnChanges {
   }
 
   onSubmit() {
-    if (this.registerForm.invalid || !this.file) return;
+    if (this.registerForm.invalid) return;
     const fd = new FormData();
     Object.entries(this.registerForm.value).forEach(([k, v]) => {
       if (v !== undefined && v !== null) fd.append(k, String(v));
     });
-    fd.append('file', this.file);
-
+    if(this.file) fd.append('file', this.file);
     this.onSubmitEmitter.emit(fd);
   }
 }

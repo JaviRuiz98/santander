@@ -13,7 +13,8 @@ import { FORM_CANDIDATE_INPUTS } from '../../config/candidate-form/candidate-for
 
 export class CandidatePageComponent implements OnInit{
 
-  formSchema: FormSchema[][] = FORM_CANDIDATE_INPUTS
+  formSchema: FormSchema[][] = FORM_CANDIDATE_INPUTS;
+  
   constructor(){}
   ngOnInit(): void {}
 }
