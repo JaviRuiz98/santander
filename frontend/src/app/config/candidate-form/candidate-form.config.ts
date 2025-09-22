@@ -2,7 +2,7 @@ import { FormSchema } from "../../interface/component/form/form.interface";
 
 export const FORM_CANDIDATE_INPUTS:  FormSchema[][] = [
   [{
-    type: ['cabecera'],
+    type: ['header'],
     headers: ['Datos del candidato'],
     fields: [''],
     options: [],

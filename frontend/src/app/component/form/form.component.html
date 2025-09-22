@@ -3,25 +3,50 @@
     <div [ngStyle]="getGridStyle(row)">
       <ng-container *ngFor="let item of row">
         <div *ngFor="let type of item.type; let i = index" [ngSwitch]="type" class="margin">
+
           <div *ngSwitchCase="'header'">
             <h3 class="section-title">{{ item.headers[i] }}</h3>
           </div>
-          <div *ngSwitchCase="'text'" >
+
+          <div *ngSwitchCase="'text'">
             <label [for]="item.fields[i]" class="field-label">
               {{ item.headers[i] }}
             </label>
             <span style="width: 99%">
-              <input class="input-text" 
-                [name]="item.fields[i]" type="text" pInputText [formControlName]="item.fields[i]"/>
+              <input
+                class="input-text"
+                [name]="item.fields[i]"
+                type="text"
+                pInputText
+                [formControlName]="item.fields[i]" />
             </span>
           </div>
+
           <div *ngSwitchCase="'file'" [ngStyle]="{ 'grid-column': 'span ' + getItemSpan(item) }" class="margin">
             <label class="field-label" [for]="item.fields[i]">
               {{ item.headers[i] }}
             </label>
-            <input [id]="item.fields[i]" type="file" accept=".xlsx,.xls" (change)="onFileChange($event)" #fileInput />
-            <div class="dropzone" role="button" tabindex="0" [class.dragover]="isDragOver" (click)="fileInput.click()"
-              (keyup.enter)="fileInput.click()" (dragover)="onDragOver($event)" (dragleave)="onDragLeave()" (drop)="onDrop($event)">
+
+            <!-- input real (oculto) -->
+            <input
+              [id]="item.fields[i]"
+              type="file"
+              accept=".xlsx,.xls"
+              (change)="onFileChange($event, item.fields[i])"
+              #fileInput />
+
+            <!-- dropzone -->
+            <div
+              class="dropzone"
+              role="button"
+              tabindex="0"
+              [class.dragover]="isDragOver"
+              (click)="fileInput.click()"
+              (keyup.enter)="fileInput.click()"
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave()"
+              (drop)="onDrop($event, item.fields[i])">
+
               <div class="dropzone__icon" aria-hidden="true">
                 <svg width="22" height="22" viewBox="0 0 24 24">
                   <path d="M4 3h10l6 6v12H4V3z" fill="#fff" stroke="#e5e5e5"/>
@@ -30,19 +55,33 @@
                   <text x="12" y="16" text-anchor="middle" font-size="9" font-weight="700" fill="#21a366">X</text>
                 </svg>
               </div>
+
               <div class="dropzone__body">
                 <div class="dropzone__title">Arrastra y suelta tu Excel</div>
                 <div class="dropzone__hint">
-                  o <button type="button" class="btn-link" (click)="fileInput.click()">haz clic para seleccionarlo</button> (1&nbsp;fila)
+                  o
+                  <button type="button" class="btn-link" (click)="fileInput.click()">
+                    haz clic para seleccionarlo
+                  </button>
+                  (1&nbsp;fila)
                 </div>
+
                 <div *ngIf="file" class="file-chip" aria-live="polite">
                   <span class="file-chip__name">{{ file.name }}</span>
-                  <button type="button" class="file-chip__clear" (click)="clearFile(fileInput)" aria-label="Quitar archivo">
-                    <svg width="16" height="16" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="#666" stroke-width="2" stroke-linecap="round"/></svg>
+                  <button
+                    type="button"
+                    class="file-chip__clear"
+                    (click)="clearFile(item.fields[i], fileInput)"
+                    aria-label="Quitar archivo">
+                    <svg width="16" height="16" viewBox="0 0 24 24">
+                      <path d="M6 6l12 12M18 6L6 18" stroke="#666" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
                   </button>
                 </div>
               </div>
             </div>
+
+            <!-- columnas requeridas (solo visual) -->
             <div *ngIf="item?.parameters?.[0]?.columns?.length" class="file-columns">
               Columnas requeridas:
               <ul>
@@ -51,12 +90,21 @@
                 </li>
               </ul>
             </div>
+
+            <!-- (opcional) muestra error si el file es requerido en el schema -->
+            <small
+              *ngIf="registerForm.get(item.fields[i])?.hasError('required') && (registerForm.get(item.fields[i])?.touched || registerForm.touched)"
+              style="color:#c40000;display:block;margin-top:6px;">
+              El archivo es obligatorio.
+            </small>
           </div>
+
           <div *ngSwitchCase="'button'" class="button">
             <button type="submit" class="btn-primary" [disabled]="registerForm.invalid">
               {{ item.headers[i] }}
             </button>
           </div>
+
         </div>
       </ng-container>
     </div>
