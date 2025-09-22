@@ -1,7 +1,15 @@
 <div class="container">
   <div class="form">
     <img src="assets/logo.png" class="logo" alt="Logo" />
-    <app-form [form]="formSchema" (onSubmitEmitter)="onSubmit($event)"></app-form>
+
+    <app-form
+      [form]="formSchema"
+      (onSubmitEmitter)="onSubmit($event)">
+    </app-form>
+
+    <div class="loading-overlay" *ngIf="loading" aria-live="polite" aria-busy="true">
+      <div class="spinner" role="status" aria-label="Cargando"></div>
+      <span class="loading-text">Enviando...</span>
+    </div>
   </div>
 </div>
-
