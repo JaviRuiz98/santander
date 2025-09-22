@@ -15,16 +15,12 @@
                 [name]="item.fields[i]" type="text" pInputText [formControlName]="item.fields[i]"/>
             </span>
           </div>
-          <div *ngSwitchCase="'file'"
-               [ngStyle]="{ 'grid-column': 'span ' + getItemSpan(item) }">
+          <div *ngSwitchCase="'file'" [ngStyle]="{ 'grid-column': 'span ' + getItemSpan(item) }">
             <label [for]="item.fields[i]">{{ item.headers[i] }}</label>
-            <input [id]="item.fields[i]" type="file"
-                   (change)="onFileChange($event)" accept=".xlsx,.xls" />
+            <input [id]="item.fields[i]" type="file" (change)="onFileChange($event)" accept=".xlsx,.xls" />
           </div>
           <div *ngSwitchCase="'button'" class="button">
-            <button type="submit"
-                    class="btn-primary"
-                    [disabled]="registerForm.invalid || !file">
+            <button type="submit" class="btn-primary" [disabled]="registerForm.invalid">
               {{ item.headers[i] }}
             </button>
           </div>

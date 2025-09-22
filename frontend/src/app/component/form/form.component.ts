@@ -23,7 +23,7 @@ export class FormComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['form']) this.buildFormFromSchema();
+    if (changes['form']) this.buildFormFromSchema(); 
   }
 
   private buildFormFromSchema(): void {
@@ -33,7 +33,7 @@ export class FormComponent implements OnChanges {
       for (const item of row) {
         item.fields.forEach((fieldName, i) => {
           const type = item.type?.[i] ?? item.type?.[0];
-          if (!fieldName || type === 'header' || type === 'file') return;
+          if (!fieldName || type === 'header' || type === 'button') return;
 
           const validators: ValidatorFn[] = [];
           if (item.validators?.[i]) validators.push(Validators.required);
@@ -71,12 +71,6 @@ export class FormComponent implements OnChanges {
   }
 
   onSubmit() {
-    if (this.registerForm.invalid) return;
-    const fd = new FormData();
-    Object.entries(this.registerForm.value).forEach(([k, v]) => {
-      if (v !== undefined && v !== null) fd.append(k, String(v));
-    });
-    if(this.file) fd.append('file', this.file);
-    this.onSubmitEmitter.emit(fd);
+    if (this.registerForm.valid) this.onSubmitEmitter.emit(this.registerForm.value);
   }
 }

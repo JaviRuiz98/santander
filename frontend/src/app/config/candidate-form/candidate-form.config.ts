@@ -25,14 +25,14 @@ export const FORM_CANDIDATE_INPUTS:  FormSchema[][] = [
         parameters: [],
         validators: [true]   
     }],
-    [{
-      type: ['file'],
-      headers: ['Excel (1 fila)'],
-      fields: ['file'],
-      options: [],
-      parameters: [],
-      validators: [true]
-    }],
+    // [{
+    //   type: ['file'],
+    //   headers: ['Excel (1 fila)'],
+    //   fields: ['file'],
+    //   options: [],
+    //   parameters: [],
+    //   validators: [true]
+    // }],
     [{
       type: ['button'],
       headers: ['Guardar'],

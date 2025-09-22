@@ -17,4 +17,8 @@ export class CandidatePageComponent implements OnInit{
   
   constructor(){}
   ngOnInit(): void {}
+
+  onSubmit(event: any){
+    console.log(event)
+  }
 }
