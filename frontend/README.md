@@ -1,59 +1,127 @@
-# CandidateManager
+Digital Platform – Technical Test
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.13.
+Backend and codebase in English. Frontend UI texts are in Spanish.
 
-## Development server
+Overview
 
-To start a local development server, run:
+Full-stack app where users upload an Excel file with exactly one data row containing candidate info. The frontend (Angular) sends the form + file to the backend (NestJS), which parses the Excel and returns a merged JSON. The frontend keeps an incremental list of all uploaded candidates and displays a Material table with the required columns.
 
-```bash
-ng serve
-```
+Tech Stack
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Frontend: Angular 16+, Angular Material, Reactive Forms (UI in Spanish)
 
-## Code scaffolding
+Backend: NestJS, Prisma ORM (no Docker required)
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Database: SQLite (via Prisma)
 
-```bash
-ng generate component component-name
-```
+Tests: Jest (unit / integration)
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Repository Structure (example)
+/frontend/         # Angular SPA (Spanish UI)
+/backend/          # NestJS API
+  prisma/          # Prisma schema & migrations
+.env.example       # Backend environment template
 
-```bash
-ng generate --help
-```
+Requirements
 
-## Building
+Node.js 18+
 
-To build the project run:
+npm 9+
 
-```bash
-ng build
-```
+No Docker needed. The backend runs with Prisma + SQLite out of the box.
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Setup & Run
+Backend
+cd backend
+cp .env.example .env
+npm ci
+npx prisma generate
+npx prisma migrate deploy   # or: npx prisma migrate dev (first run)
+npm run start:dev           # dev mode (watch)
+# npm run build && npm run start:prod  # production
 
-## Running unit tests
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+.env (example):
 
-```bash
-ng test
-```
+DATABASE_URL="file:./dev.db"
+PORT=3000
+CORS_ORIGIN=http://localhost:4200
 
-## Running end-to-end tests
+Frontend
+cd ../frontend
+npm ci
+npm start        # ng serve
 
-For end-to-end (e2e) testing, run:
 
-```bash
-ng e2e
-```
+Open http://localhost:4200
+ (frontend).
+API listens on http://localhost:3000
+ by default.
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+How to Use
 
-## Additional Resources
+Open the app.
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Fill Nombre and Apellidos (Name/Surname).
+
+Select an Excel with exactly one data row and headers:
+
+Seniority → junior | senior
+
+Years → number
+
+Availability → boolean (true/false or 1/0)
+
+Submit. The backend responds with { name, surname, seniority, years, availability }.
+
+The frontend adds the candidate to an incremental list and renders a Material table with 5 columns.
+
+API
+
+POST /candidates/upload – multipart/form-data
+
+Fields: name (string), surname (string), file (Excel)
+
+Response: { name, surname, seniority, years, availability }
+
+GET /candidates (optional) – returns persisted candidates if enabled.
+
+Routes may vary depending on your module names; adjust if needed.
+
+Data & Persistence
+
+Backend: Prisma model Candidate stored in dev.db (SQLite).
+
+Frontend: Maintains an in-memory list that grows with each successful upload (optionally persisted to LocalStorage if enabled).
+
+Testing
+# backend
+cd backend
+npm run test
+npm run test:e2e
+
+# frontend
+cd ../frontend
+npm test
+
+Design Decisions
+
+Prisma + SQLite to avoid Docker and keep setup minimal.
+
+Strong validation on both client and server.
+
+Reactive UI (RxJS) + Angular Material for accessibility and speed.
+
+Troubleshooting
+
+CORS: Ensure CORS_ORIGIN matches http://localhost:4200.
+
+Migrations: Run npx prisma migrate dev if the schema changes.
+
+Excel errors: Verify exactly 1 data row and correct headers.
+
+Port in use: Change PORT in .env or free the port.
+
+License / Usage
+
+For recruitment evaluation purposes only.
