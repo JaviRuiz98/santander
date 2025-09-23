@@ -12,6 +12,6 @@ export class CandidateService {
   private readonly http: HttpClient = inject(HttpClient);
 
   public newCandidate(candidate: Candidate): Observable<IGenericResponse> {
-    return this.http.post<IGenericResponse>(`${this.apiUrl}`, candidate);
+    return this.http.post<IGenericResponse>(`${this.apiUrl}candidates`, candidate);
   }
 }
