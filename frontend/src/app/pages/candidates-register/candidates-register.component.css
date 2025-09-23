@@ -1,0 +1,84 @@
+:root{
+  --chip-junior: #e8f5e9;
+  --chip-senior: #e3f2fd;
+}
+.card{ background:#fff; border-radius:12px; padding:16px; box-shadow:0 4px 16px rgba(0,0,0,.06); }
+.card__header{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
+.actions{ display:flex; gap:10px; align-items:center; }
+.input{ padding:10px 12px; border:1px solid #ddd; border-radius:8px; min-width:220px; }
+.table-wrap{ overflow:auto; border-radius:8px; }
+.fancy-table{ width:100%; border-radius:8px; overflow:hidden; }
+.sticky{ position:sticky; top:0; background:#fafafa; z-index:1; }
+.row:hover{ background:#fafafa; }
+.chip{ display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-weight:600; text-transform:capitalize; }
+.badge{ display:inline-block; min-width:28px; text-align:center; padding:2px 8px; border-radius:8px; background:#f1f5f9; font-weight:600; }
+.pill{ display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-weight:600; }
+.pill.ok{ background:#e8f5e9; color:#1b5e20; }
+.pill.ko{ background:#ffebee; color:#b71c1c; }
+.state{ padding:12px; border-radius:8px; background:#f6f7fb; }
+.state--error{ background:#ffebee; color:#b71c1c; }
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.table-card{
+  width: min(1100px, 96%);
+  margin: 16px auto;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+  padding: 16px 16px 8px;
+  border: 1px solid #eef0f4;
+}
+
+.table-wrap{
+  overflow: auto;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #fafbff 0%, #ffffff 100%);
+  border: 1px solid #edf0f6;
+}
+
+.table-contrast{
+  width: 100%;
+  border-collapse: separate !important;
+  border-spacing: 0;
+  background: transparent;
+}
+
+.table-contrast th[mat-header-cell]{
+  position: sticky; top: 0; z-index: 1;
+  background: #f3f6fb;
+  color: #283447;
+  font-weight: 700;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px 14px;
+  text-transform: none;
+}
+
+.table-contrast td[mat-cell]{
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
+}
+
+.table-contrast .mat-mdc-row:nth-child(odd) td[mat-cell]{
+  background: #fbfdff;
+}
+.table-contrast .mat-mdc-row:hover td[mat-cell]{
+  background: #f6faff;
+}
+
+.sticky{ background:#f3f6fb; }
+
+.empty-hint{
+  padding: 12px;
+  color: #64748b;
+  text-align: center;
+}
+
+.container{
+  display:flex; justify-content:center; align-items:flex-start;
+}
