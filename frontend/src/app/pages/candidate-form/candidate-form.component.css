@@ -58,3 +58,26 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+.alert-success {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin: 12px 0 16px;
+  padding: 10px 12px;
+  border: 1px solid #b7eb8f;
+  background: #f6ffed;
+  color: #135200;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.alert-close {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  color: inherit;
+}

@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import * as XLSX from 'xlsx';
 import { randomUUID } from 'crypto';
-import { Candidate as CandidateDto, Seniority } from './dto/create-candidate.dto';
+import { Candidate, Seniority } from './dto/create-candidate.dto';
 import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
@@ -11,51 +11,125 @@ export class CandidatesService {
   async parseExcelAndCombine(
     excelBuffer: Buffer | undefined,
     payload: { name: string; surname: string }
-  ): Promise<CandidateDto> {
+  ): Promise<Candidate> {
     if (!excelBuffer || excelBuffer.length === 0) {
       throw new BadRequestException('Excel file is required');
     }
 
-    let row: Record<string, unknown> | undefined;
+    let extracted: Record<string, unknown>;
+
     try {
       const wb = XLSX.read(excelBuffer, { type: 'buffer' });
       const ws = wb.Sheets[wb.SheetNames[0]];
-      const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, { defval: null });
-      if (!json.length) throw new Error('Excel is empty');
-      if (json.length > 1) throw new Error('Only 1 row allowed');
-      row = json[0];
+
+      // 1) Leemos como matriz para poder encontrar cabeceras en cualquier parte
+      const rows: any[][] = XLSX.utils.sheet_to_json(ws, {
+        header: 1,
+        defval: null,
+        raw: true,
+      }) as any[][];
+
+      const norm = (v: unknown) =>
+        String(v ?? '')
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .trim()
+          .toLowerCase();
+
+      // Cabeceras aceptadas (variantes)
+      const headerSets = {
+        seniority: ['seniority', 'senioridad'],
+        yearsMain: ['years of experience', 'anos de experiencia', 'años de experiencia'],
+        yearsAlt: ['years', 'experience'],
+        availability: ['availability', 'disponibilidad', 'available'],
+      };
+
+      // Busca una fila que contenga TODAS las cabeceras requeridas
+      function findHeaderRow(): { index: number; colByKey: Record<string, number> } | null {
+        for (let r = 0; r < rows.length; r++) {
+          const line = rows[r] ?? [];
+          const cells = line.map(norm);
+          const colByKey: Record<string, number> = {};
+
+          // seniority
+          const sIdx = cells.findIndex((c) => headerSets.seniority.includes(c));
+          if (sIdx === -1) continue;
+          colByKey['seniority'] = sIdx;
+
+          // years: primero pruebas "years of experience", si no, "years"/"experience"
+          let yIdx = cells.findIndex((c) => headerSets.yearsMain.includes(c));
+          if (yIdx === -1) yIdx = cells.findIndex((c) => headerSets.yearsAlt.includes(c));
+          if (yIdx === -1) continue;
+          colByKey['years'] = yIdx;
+
+          // availability
+          const aIdx = cells.findIndex((c) => headerSets.availability.includes(c));
+          if (aIdx === -1) continue;
+          colByKey['availability'] = aIdx;
+
+          return { index: r, colByKey };
+        }
+        return null;
+      }
+
+      const headerInfo = findHeaderRow();
+      if (!headerInfo) {
+        throw new Error(
+          'Headers not found. Required columns: seniority, years (or years of experience), availability'
+        );
+      }
+
+      // 2) Toma SOLO la primera fila con datos bajo las cabeceras
+      let dataRow: any[] | null = null;
+      for (let r = headerInfo.index + 1; r < rows.length; r++) {
+        const line = rows[r] ?? [];
+        const hasData = line.some((v) => {
+          if (v === null || v === undefined) return false;
+          if (typeof v === 'string') return v.trim() !== '';
+          return true; // números/boolean cuentan como dato
+        });
+        if (hasData) {
+          dataRow = line;
+          break;
+        }
+      }
+      if (!dataRow) {
+        throw new Error('No data row found under the headers');
+      }
+
+      // 3) Construye un objeto usando las columnas detectadas
+      extracted = {
+        seniority: dataRow[headerInfo.colByKey['seniority']],
+        years: dataRow[headerInfo.colByKey['years']],
+        availability: dataRow[headerInfo.colByKey['availability']],
+      };
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       throw new BadRequestException(`Invalid Excel: ${msg}`);
     }
 
-    const norm = (v?: unknown) => (v ?? '').toString().trim().toLowerCase();
-    const keys = Object.keys(row!).reduce<Record<string, unknown>>((acc, k) => {
-      acc[norm(k)] = (row as any)[k];
-      return acc;
-    }, {});
-    const pick = (...c: string[]) => c.map(norm).map(k => keys[k]).find(v => v !== undefined);
+    // === Validaciones y normalización tal cual tenías ===
+    const normalize = (s?: unknown) => (s ?? '').toString().trim().toLowerCase();
 
-    const seniorityRaw = pick('seniority', 'senioridad');
-    const yearsRaw = pick('years of experience', 'años de experiencia', 'years', 'experience');
-    const availRaw = pick('availability', 'disponibilidad', 'available');
-
-    const seniority = norm(seniorityRaw) as Seniority;
+    const seniority = normalize(extracted.seniority) as Seniority;
     if (seniority !== 'junior' && seniority !== 'senior') {
       throw new BadRequestException('Seniority must be "junior" or "senior"');
     }
-    const years = Number(yearsRaw);
+
+    const years = Number(extracted.years);
     if (!Number.isFinite(years) || years < 0) {
       throw new BadRequestException('Years of experience must be a non-negative number');
     }
-    const av = norm(availRaw);
-    const availability =
-      ['true', 'yes', 'si', 'sí', '1'].includes(av) ? true :
-      ['false', 'no', '0'].includes(av) ? false :
-      (() => { throw new BadRequestException('Availability must be boolean'); })();
 
-    // 1) Respuesta para el front (persistencia en el front)
-    const candidate: CandidateDto = {
+    const availabilityStr = normalize(extracted.availability);
+    const availability =
+      ['true', 'yes', 'si', 'sí', '1'].includes(availabilityStr) ? true :
+      ['false', 'no', '0'].includes(availabilityStr) ? false :
+      (() => {
+        throw new BadRequestException('Availability must be boolean');
+      })();
+
+    const candidate: Candidate = {
       id: randomUUID(),
       name: payload.name,
       surname: payload.surname,
@@ -64,7 +138,7 @@ export class CandidatesService {
       availability,
     };
 
-    // 2) Guardado en DB (para tu demo)
+    // Guardado opcional en DB (Prisma + SQLite/Postgres)
     await this.prisma.candidate.create({
       data: {
         name: candidate.name,
@@ -78,8 +152,11 @@ export class CandidatesService {
     return candidate;
   }
 
-  // Endpoint opcional para que la empresa vea lo guardado en DB:
-  listAllFromDb() {
-    return this.prisma.candidate.findMany({ orderBy: { createdAt: 'desc' } });
+  // al final de la clase CandidatesService
+  async listAllFromDb() {
+    return this.prisma.candidate.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
   }
+
 }

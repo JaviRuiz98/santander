@@ -3,11 +3,9 @@
     <div [ngStyle]="getGridStyle(row)">
       <ng-container *ngFor="let item of row">
         <div *ngFor="let type of item.type; let i = index" [ngSwitch]="type" class="margin">
-
           <div *ngSwitchCase="'header'">
             <h3 class="section-title">{{ item.headers[i] }}</h3>
           </div>
-
           <div *ngSwitchCase="'text'">
             <label [for]="item.fields[i]" class="field-label">
               {{ item.headers[i] }}
@@ -27,7 +25,6 @@
               {{ item.headers[i] }}
             </label>
 
-            <!-- input real (oculto) -->
             <input
               [id]="item.fields[i]"
               type="file"
@@ -35,7 +32,6 @@
               (change)="onFileChange($event, item.fields[i])"
               #fileInput />
 
-            <!-- dropzone -->
             <div
               class="dropzone"
               role="button"
@@ -63,7 +59,6 @@
                   <button type="button" class="btn-link" (click)="fileInput.click()">
                     haz clic para seleccionarlo
                   </button>
-                  (1&nbsp;fila)
                 </div>
 
                 <div *ngIf="file" class="file-chip" aria-live="polite">
@@ -81,7 +76,6 @@
               </div>
             </div>
 
-            <!-- columnas requeridas (solo visual) -->
             <div *ngIf="item?.parameters?.[0]?.columns?.length" class="file-columns">
               Columnas requeridas:
               <ul>
@@ -91,7 +85,6 @@
               </ul>
             </div>
 
-            <!-- (opcional) muestra error si el file es requerido en el schema -->
             <small
               *ngIf="registerForm.get(item.fields[i])?.hasError('required') && (registerForm.get(item.fields[i])?.touched || registerForm.touched)"
               style="color:#c40000;display:block;margin-top:6px;">

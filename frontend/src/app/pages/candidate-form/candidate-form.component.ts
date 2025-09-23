@@ -6,6 +6,7 @@ import { FORM_CANDIDATE_INPUTS } from '../../config/candidate-form/candidate-for
 import { CandidateService } from '../../service/cadidate-form.service';
 import { IGenericResponse } from '../../interface/generic/IGenericResponse.interface';
 import { CommonModule } from '@angular/common';
+
 @Component({
   selector: 'app-candidate-form',
   imports: [FormComponent, CommonModule],
@@ -13,23 +14,30 @@ import { CommonModule } from '@angular/common';
   styleUrl: './candidate-form.component.css',
   standalone: true,
 })
-export class CandidatePageComponent implements OnInit {
 
+export class CandidatePageComponent implements OnInit {
+  
   formSchema: FormSchema[][] = FORM_CANDIDATE_INPUTS;
-  loading = false; 
+
+  loading: boolean = false;
+  showThanks: boolean = false;
+
+  thanksText: string = '';
 
   constructor(private CandidateService: CandidateService) {}
 
   ngOnInit(): void {}
 
-  onSubmit(event: any) {
+  onSubmit(event: FormData) {
     this.loading = true;
-    this.CandidateService.newCandidate(event).pipe(finalize(() => (this.loading = false))) .subscribe({
-      next: (response: IGenericResponse) => {
-        console.log('OK', response);
+    this.CandidateService.newCandidate(event).pipe(finalize(() => (this.loading = false))).subscribe({
+      next: (response: IGenericResponse & { name?: string; surname?: string }) => {
+        this.thanksText = `¡Gracias, ${response.name}! Hemos recibido tu candidatura.`
+        this.showThanks = true;
+        setTimeout(() => (this.showThanks = false), 4000);
       },
-      error: (err) => {
-        console.error('Error', err);
+      error: (error) => {
+        console.error('Error', error);
       },
     });
   }

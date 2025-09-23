@@ -213,7 +213,34 @@ export class FormComponent implements OnChanges {
   async onSubmit() {
     this.registerForm.markAllAsTouched();
     if (this.registerForm.invalid) return;
-    const payload = await this.buildCombinedObject();
-    this.onSubmitEmitter.emit(payload)
+
+    if (!this.file) {
+      alert('Debes adjuntar el Excel');
+      return;
+    }
+
+    const raw = this.registerForm.getRawValue?.() ?? this.registerForm.value;
+    const name = String(raw['name'] ?? '').trim();
+    const surname = String(raw['surname'] ?? '').trim();
+
+    if (!name || !surname) {
+      alert('Name y Surname son obligatorios');
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append('name', name);
+    fd.append('surname', surname);
+    fd.append('excel', this.file);        
+
+    // (opcional) si tu schema tiene más campos simples, puedes añadirlos aquí:
+    // for (const [k, v] of Object.entries(raw)) {
+    //   if (!this.fileControlNames.has(k) && k !== 'name' && k !== 'surname' && v != null && v !== '') {
+    //     fd.append(k, typeof v === 'string' ? v.trim() : String(v));
+    //   }
+    // }
+
+    this.onSubmitEmitter.emit(fd);
   }
+
 }
