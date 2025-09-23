@@ -8,10 +8,10 @@ datasource db {
 }
 
 model Candidate {
-  id           String  @id @default(cuid())
+  id           Int      @id @default(autoincrement())  
   name         String
   surname      String
-  seniority    String  // 'junior' | 'senior'
+  seniority    String
   years        Int
   availability Boolean
   createdAt    DateTime @default(now())

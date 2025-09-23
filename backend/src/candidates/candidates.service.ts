@@ -22,7 +22,6 @@ export class CandidatesService {
       const wb = XLSX.read(excelBuffer, { type: 'buffer' });
       const ws = wb.Sheets[wb.SheetNames[0]];
 
-      // 1) Leemos como matriz para poder encontrar cabeceras en cualquier parte
       const rows: any[][] = XLSX.utils.sheet_to_json(ws, {
         header: 1,
         defval: null,
@@ -36,7 +35,6 @@ export class CandidatesService {
           .trim()
           .toLowerCase();
 
-      // Cabeceras aceptadas (variantes)
       const headerSets = {
         seniority: ['seniority', 'senioridad'],
         yearsMain: ['years of experience', 'anos de experiencia', 'años de experiencia'],
@@ -44,25 +42,21 @@ export class CandidatesService {
         availability: ['availability', 'disponibilidad', 'available'],
       };
 
-      // Busca una fila que contenga TODAS las cabeceras requeridas
       function findHeaderRow(): { index: number; colByKey: Record<string, number> } | null {
         for (let r = 0; r < rows.length; r++) {
           const line = rows[r] ?? [];
           const cells = line.map(norm);
           const colByKey: Record<string, number> = {};
 
-          // seniority
           const sIdx = cells.findIndex((c) => headerSets.seniority.includes(c));
           if (sIdx === -1) continue;
           colByKey['seniority'] = sIdx;
 
-          // years: primero pruebas "years of experience", si no, "years"/"experience"
           let yIdx = cells.findIndex((c) => headerSets.yearsMain.includes(c));
           if (yIdx === -1) yIdx = cells.findIndex((c) => headerSets.yearsAlt.includes(c));
           if (yIdx === -1) continue;
           colByKey['years'] = yIdx;
 
-          // availability
           const aIdx = cells.findIndex((c) => headerSets.availability.includes(c));
           if (aIdx === -1) continue;
           colByKey['availability'] = aIdx;
@@ -79,14 +73,13 @@ export class CandidatesService {
         );
       }
 
-      // 2) Toma SOLO la primera fila con datos bajo las cabeceras
       let dataRow: any[] | null = null;
       for (let r = headerInfo.index + 1; r < rows.length; r++) {
         const line = rows[r] ?? [];
         const hasData = line.some((v) => {
           if (v === null || v === undefined) return false;
           if (typeof v === 'string') return v.trim() !== '';
-          return true; // números/boolean cuentan como dato
+          return true;
         });
         if (hasData) {
           dataRow = line;
@@ -97,7 +90,6 @@ export class CandidatesService {
         throw new Error('No data row found under the headers');
       }
 
-      // 3) Construye un objeto usando las columnas detectadas
       extracted = {
         seniority: dataRow[headerInfo.colByKey['seniority']],
         years: dataRow[headerInfo.colByKey['years']],
@@ -108,7 +100,6 @@ export class CandidatesService {
       throw new BadRequestException(`Invalid Excel: ${msg}`);
     }
 
-    // === Validaciones y normalización tal cual tenías ===
     const normalize = (s?: unknown) => (s ?? '').toString().trim().toLowerCase();
 
     const seniority = normalize(extracted.seniority) as Seniority;
@@ -138,7 +129,6 @@ export class CandidatesService {
       availability,
     };
 
-    // Guardado opcional en DB (Prisma + SQLite/Postgres)
     await this.prisma.candidate.create({
       data: {
         name: candidate.name,
@@ -152,11 +142,8 @@ export class CandidatesService {
     return candidate;
   }
 
-  // al final de la clase CandidatesService
   async listAllFromDb() {
-    return this.prisma.candidate.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
+    return this.prisma.candidate.findMany({ orderBy: { createdAt: 'desc' } });
   }
 
 }

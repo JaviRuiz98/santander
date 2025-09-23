@@ -17,7 +17,6 @@ export class CandidatesController {
     return this.svc.parseExcelAndCombine(file?.buffer, dto);
   }
 
-  // Solo para demo/evaluación:
   @Get()
   async list() {
     return this.svc.listAllFromDb();
